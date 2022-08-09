@@ -6,6 +6,8 @@ const userSchema = new mongoose.Schema({
     firstName:String,
     lastName:String,
     status:Boolean
-},{timestamps:true})
+},{timestamps:true});
 
-export default mongoose.model('User',userSchema);
+const User = mongoose.model('User',userSchema);
+
+module.exports = User
