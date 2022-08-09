@@ -143,18 +143,45 @@ app.get('/chatting', checkSignIn, function(req, res){
 
 
 
-app.post('/login', function(req, res){
-    console.log(Users);
-    if(!req.body.id || !req.body.password){
-        res.render('login', {message: "Please enter both id and password"});
+app.post('/login', (req, res) => {
+    if (!req.body.username || !req.body.password) {
+        res.render('login', {message: "Please enter both username and password"});
     } else {
-        Users.filter(function(user){
-            if(user.id === req.body.id && user.password === req.body.password){
-                req.session.user = user;
-                res.redirect('/protected_page');
+        const {username, password} = req.body;
+        User.findOne({username}).then(async usr => {
+            const isMatch = await bcrypt.compare(password, usr.password);
+            if (!isMatch){
+                res.status(400);
+                res.render('login', {message: "Incorrect username or password"});
             }
-        });
-        res.render('login', {message: "Invalid credentials!"});
+            const payload = {
+                user: {
+                    id: usr.id
+                }
+            };
+
+            await jwt.sign(
+                payload,
+                process.env.SECRET,
+                {
+                    expiresIn: 3600
+                },
+                (err, token) => {
+                    if (err) throw err;
+                    console.log("Token Generated",token)
+                    res.status(200).header("Authorization", "Bearer " + token).json({});
+                }
+            );
+
+            req.session.user = usr;
+            res.redirect('/chatting');
+
+
+        }).catch(err => {
+             res.status(400);
+             res.render("/login",{message: "User Not Exist"})
+        })
+
     }
 });
 
@@ -162,13 +189,7 @@ app.get('/logout', function(req, res){
     req.session.destroy(function(){
         console.log("user logged out.")
     });
-    res.redirect('/login');
-});
-
-app.use('/protected_page', function(err, req, res, next){
-    console.log(err);
-    //User should be authenticated! Redirect him to log in.
-    res.redirect('/login');
+    res.redirect('/');
 });
 
 
