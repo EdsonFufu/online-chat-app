@@ -7,7 +7,11 @@
                     <h1 class="h2">Welcome</h1>
                     <p class="lead">
                         {{#if message }}
-                        {{message}}
+                            <div class="alert alert-info alert-dismissable">
+                                <a class="panel-close close" data-dismiss="alert">×</a>
+                                <i class="fa fa-info"></i>
+                                {{message}}
+                            </div>
                         {{else}}
                             Sign in to your account to continue
                         {{/if}}

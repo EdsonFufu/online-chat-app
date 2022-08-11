@@ -10,6 +10,8 @@ const contactRouter = require("./routes/contact")
 const chattingRouter = require("./routes/chatting")
 const loginRouter = require("./routes/login")
 const signupRouter = require("./routes/signup")
+const usersRouter = require("./routes/users")
+const profileRouter = require("./routes/profile")
 
 const app = express();
 require('dotenv').config()
@@ -60,6 +62,8 @@ db.on('error', function(err) {
 
 const User = require("./model/User")
 
+app.use('/users',usersRouter);
+app.use('/profile',profileRouter);
 app.use('/contact',contactRouter);
 app.use('/chatting',chattingRouter);
 app.use('/signup',signupRouter);

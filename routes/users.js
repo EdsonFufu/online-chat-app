@@ -1,0 +1,9 @@
+const express = require("express")
+const auth = require("../middleware/auth")
+const router = express.Router()
+
+router.get("/",auth,(req,res) => {
+    res.status(200).render("users",{title:"Users",id:req.session.user._id,isLoggedIn:true})
+})
+
+module.exports = router
