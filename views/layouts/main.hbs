@@ -8,8 +8,44 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 <body>
+<header class="header-area overlay">
+    <nav class="navbar navbar-expand-md navbar-dark">
+        <div class="container">
+            <a href="/chatting" class="navbar-brand float-start"><img src="images/logo.png" height="50" alt="Online Chatting Application" /></a>
+
+            <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#main-nav">
+                <span class="menu-icon-bar"></span>
+                <span class="menu-icon-bar"></span>
+                <span class="menu-icon-bar"></span>
+            </button>
+
+            <div id="main-nav" class="collapse navbar-collapse float-end mx-lg-5">
+                <ul class="navbar-nav ml-auto ">
+                    <li><a href="/chatting" class="nav-item nav-link"><i class="fa fa-home"></i> Start Chatting</a></li>
+                    <li><a href="/profile" class="nav-item nav-link active"><i class="fa fa-user"></i> My Profile</a></li>
+                    <li><a href="/users" class="nav-item nav-link"><i class="fa fa-users"></i> Other Users</a></li>
+                    <li><a href="/chatroom" class="nav-item nav-link"><i class="fa fa-comment"></i> Chat Rooms</a></li>
+                    <li><a href="/contact" class="nav-item nav-link"><i class="fa fa-address-book"></i> Contact</a></li>
+                </ul>
+            </div>
+            <div class="float-end">
+                {{#if isLoggedIn }}
+                    <a href="/logout" class="btn btn-outline-warning"><i class="fa fa-lock"></i> Logout</a>
+                {{else}}
+                    <a href="/" class="btn btn-outline-dark"><i class="fa fa-lock-open"></i> Login</a>
+                {{/if}}
+            </div>
+        </div>
+    </nav>
+
+</header>
+<main>
 {{{body}}}
+</main>
 <!-- JavaScript Bundle with Popper -->
 <script src="js/bootstrap.bundle.min.js"  crossorigin="anonymous"></script>
+<script>
+
+</script>
 </body>
 </html>

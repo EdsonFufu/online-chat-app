@@ -6,6 +6,11 @@ const bcrypt= require("bcrypt")
 const jwt = require("jwt-then")
 var session = require('express-session');
 
+const contactRouter = require("./routes/contact")
+const chattingRouter = require("./routes/chatting")
+const loginRouter = require("./routes/login")
+const signupRouter = require("./routes/signup")
+
 const app = express();
 require('dotenv').config()
 
@@ -53,17 +58,13 @@ db.on('error', function(err) {
     console.log(err);
 });
 
-
 const User = require("./model/User")
 
+app.use('/contact',contactRouter);
+app.use('/chatting',chattingRouter);
+app.use('/signup',signupRouter);
+app.use('/',loginRouter);
 
-app.get("/",(req, res, next) => {
-    res.render("login",{"title":"Login"})
-})
-
-app.get("/signup",(req, res, next) => {
-    res.render("signup",{"title":"SignUp"})
-})
 
 
 app.post('/signup', async function (req, res) {
@@ -134,11 +135,10 @@ function checkSignIn(req, res,next){
         var err = new Error("Not logged in!");
         console.log(req.session.user);
         next(err);  //Error, trying to access unauthorized page!
+        res.status(200)
+        res.redirect('/');
     }
 }
-app.get('/chatting', checkSignIn, function(req, res){
-    res.render('chatting', {id: req.session.user.id})
-});
 
 
 
