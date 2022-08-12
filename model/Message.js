@@ -1,16 +1,28 @@
 const mongoose = require("mongoose")
 const messageSchema = new mongoose.Schema({
-    chatroom:{
+    idFrom:{
         type:mongoose.Schema.Types.ObjectId,
-        required:"Chat Room Id is required",
-        ref:"Chatroom"
-    },
-    user:{
-        type:mongoose.Schema.Types.ObjectId,
-        required: "User is required",
+        required:"User From Id is required",
         ref:"User"
     },
-    message:String
+    idTo:{
+        type:mongoose.Schema.Types.ObjectId,
+        required: "User To Id is required",
+        ref:"User"
+    },
+    from:{
+        type:String,
+        required:"From Name is required"
+    },
+    to:{
+        type:String,
+        required: "To Name is required"
+    },
+    message:String,
+    createdDate:{
+        type:Date,
+        required:"Date Is Required"
+    }
 },{timestamps:true})
 
-export default mongoose.model('Message',messageSchema)
+module.exports = mongoose.model('Message',messageSchema)

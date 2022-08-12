@@ -36,7 +36,7 @@
                                     </div>
                                 </div>
                                 {{#if users}}
-                                    <ul class="users">
+                                    <ul id="users-list" class="users">
                                         {{#each users}}
                                             <li class="person" data-chat="{{this.username}}:{{this._id}}" title="{{this.firstName}} {{this.lastName}}">
                                                 <div class="user">
@@ -150,22 +150,64 @@
 
 </div>
 
-
+<script src="js/chat.js" defer></script>
 <script>
     const socket = io()
 
-    //const chat =$('chat-form')
     const chatInput = document.getElementById('chat-input')
     document.getElementById('chat-form').addEventListener('submit', event => {
         const toUser = document.getElementById('destination').getAttribute("title")
-        const toName = document.getElementById('destination').getAttribute("aria-label")
         event.preventDefault()
         if(toUser === "") {
             alert("Please Select User Before Start Chatting")
             return false
         }
-        const message = {from: "{{id}}", to: toUser.split(":").pop(), fromName: "{{name}}",toName, message: chatInput.value,createdAt:new Date()}
+        const message = {idFrom: "{{id}}", idTo: toUser.split(":").pop(), from: "{{name}}",to:toUser, message: chatInput.value,createdDate:new Date()}
+        updateMessageList(message)
         socket.emit('chat', message)
         chatInput.value = ''
     })
+
+    function updateMessageList(message) {
+        console.log("Message to Append",message)
+        const content = "<div class=\"chat-avatar\">\n" +
+                "                                            <img src=\"https://www.bootdey.com/img/Content/avatar/avatar3.png\" alt=\"Retail Admin\">\n" +
+                "                                            <div class=\"chat-name\">Russell</div>\n" +
+                "                                        </div>\n" +
+                "                                        <div class=\"chat-text\">Hello, I'm Russell.\n" +
+                "                                            <br>How can I help you today?</div>\n" +
+                "                                        <div class=\"chat-hour\">08:55 <span class=\"fa fa-check-circle\"></span></div>"
+        const li = document.createElement('li');
+        const id = "{{id}}"
+        li.setAttribute('class',id === message.idFrom ? "chat-left":"chat-right")
+        const chat = document.createElement("div");
+        chat.setAttribute('class','chat-avatar');
+
+        const chatName = document.createElement("div");
+        chatName.setAttribute('class','chat-name');
+        chatName.appendChild(document.createTextNode(message.from));
+
+        const chatText = document.createElement("div");
+        chatText.setAttribute('class','chat-text');
+        chatText.appendChild(document.createTextNode(message.message));
+
+        const chatHourText = document.createTextNode(new Date().toLocaleTimeString());
+        const chatHourIcon = document.createElement("span");
+        chatHourIcon.setAttribute('class',"fa fa-check-circle")
+
+        const chatHour = document.createElement("div");
+        chatHour.setAttribute('class','chat-hour');
+        chatHour.appendChild(chatHourText);
+        chatHour.appendChild(chatHourIcon)
+
+        const avatar = document.createElement("img");
+        avatar.src = "https://www.bootdey.com/img/Content/avatar/avatar3.png";
+        chat.appendChild(avatar)
+        chat.appendChild(chatName)
+        li.appendChild(chat)
+        li.appendChild(chatText)
+        li.appendChild(chatHour)
+
+        document.getElementById('chatContainer').appendChild(li);
+    }
 </script>
