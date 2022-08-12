@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/all.min.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/socket.io.js"></script>
 </head>
 <body>
 <header class="header-area overlay">
@@ -52,10 +53,43 @@
 
 {{{body}}}
 </main>
+
 <!-- JavaScript Bundle with Popper -->
 <script src="js/bootstrap.bundle.min.js"  crossorigin="anonymous"></script>
+<script src="js/jquery-3.6.0.min.js"  crossorigin="anonymous"></script>
+<script src="js/jquery-ui.min.js"  crossorigin="anonymous"></script>
 <script>
 
+
+    $(document).ready(function() {
+        console.log( "ready!" );
+        const destElem =document.getElementById('destination');
+        if(destElem){
+            destElem.innerHTML = "Please Select User Before Chat"
+        }
+
+
+        $(".person").on('click',function (){
+            console.log(this.getAttribute('data-chat') + " " + this.getAttribute('title'))
+            $("#destination").attr('title',this.getAttribute('data-chat'))
+            $("#destination").attr('aria-label',this.getAttribute('title'))
+
+            const chatId = this.getAttribute('title').concat(" &lt;" + this.getAttribute('data-chat').split(":").shift() + "&gt; ")
+            console.log(chatId)
+
+            document.getElementById('destination').innerHTML = chatId
+        });
+
+    });
+
 </script>
+<script>
+
+
+
+
+
+</script>
+
 </body>
 </html>

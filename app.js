@@ -1,3 +1,4 @@
+
 const express = require("express");
 var exphbs  = require('express-handlebars');
 const bodyParser = require("body-parser");
@@ -5,6 +6,10 @@ const mongoose = require("mongoose")
 const bcrypt= require("bcrypt")
 const jwt = require("jwt-then")
 var session = require('express-session');
+const http = require("http")
+const socketio = require('socket.io')
+
+var helpers = require('handlebars-helpers')();
 
 const contactRouter = require("./routes/contact")
 const chattingRouter = require("./routes/chatting")
@@ -12,9 +17,12 @@ const loginRouter = require("./routes/login")
 const signupRouter = require("./routes/signup")
 const usersRouter = require("./routes/users")
 const profileRouter = require("./routes/profile")
+const logoutRouter = require("./routes/logout")
 
 const app = express();
 require('dotenv').config()
+const server = http.createServer(app)
+const io = socketio(server)
 
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
@@ -28,7 +36,10 @@ app.use(session({
     }
 }));
 
-var hbs = exphbs.create({ /* config */ });
+var hbs = exphbs.create({
+    helpers: helpers
+});
+
 
 // Register `hbs.engine` with the Express app.
 // app.engine('hbs', hbs.engine);
@@ -68,69 +79,10 @@ app.use('/contact',contactRouter);
 app.use('/chatting',chattingRouter);
 app.use('/signup',signupRouter);
 app.use('/',loginRouter);
+app.use('/logout',logoutRouter);
 
 
 
-app.post('/signup', async function (req, res) {
-    if (!req.body.username || !req.body.password) {
-        res.status("400");
-        res.render("signup", {"message": "Invalid details!"});
-    } else {
-
-        User.find({}, {"username": req.body.username}).then(usr => {
-            console.log("Fetched user", usr)
-            if (usr.username === req.body.username) {
-                res.render('signup', {
-                    message: "User Already Exists! Login or choose another user id"
-                });
-            }
-        }).catch(err => {
-            console.error(err);
-            res.render("signup", {"message": "Sign Up Failed"})
-        })
-        const salt = await bcrypt.genSalt(10)
-        var newUser = new User({
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            username: req.body.username,
-            password: await bcrypt.hash(req.body.password, salt)
-        });
-        // newUser.save(function (err, doc) {
-        //     if (err) {
-        //         console.error(err);
-        //         res.render("signup", {"message": "Sign Up Failed"})
-        //     }
-        //     res.render("login", {"message": "Registration successfully Enter your Credentials to Login"})
-        // });
-
-        newUser.save().then((err,usr) => {
-            if (err) {
-                console.error(err);
-                res.render("signup", {"message": "Sign Up Failed"})
-            }
-            const payload = {
-                user: {
-                    id: usr._id
-                }
-            };
-
-            jwt.sign(
-                payload,
-                "randomString", {
-                    expiresIn: 10000
-                },
-                (err, token) => {
-                    if (err) throw err;
-                    res.status(200).header("Authorization","Bearer " + token).json({});
-                }
-            );
-
-            req.session.user = newUser;
-            res.redirect('/chatting');
-
-        })
-    }
-});
 
 function checkSignIn(req, res,next){
     if(req.session.user){
@@ -189,14 +141,29 @@ app.post('/login', (req, res) => {
     }
 });
 
-app.get('/logout', function(req, res){
-    req.session.destroy(function(){
-        console.log("user logged out.")
-    });
-    res.redirect('/');
-});
+// io.attach(server, {
+//     // includes local domain to avoid CORS error locally
+//     // configure it accordingly for production
+//     cors: {
+//         origin: 'http://localhost',
+//         methods: ['GET', 'POST'],
+//         credentials: true,
+//         transports: ['websocket', 'polling'],
+//     },
+//     allowEIO3: true,
+// })
+
+io.on('connection', (socket) => {
+    //console.log('👾 New socket connected! >>', socket.id)
+    socket.on('chat', message => {
+        console.log('From client: ', message)
+    })
+})
 
 
-app.listen(3000, () => {
+server.listen(3000, () => {
     console.log('The web server has started on port 3000');
 });
+
+
+

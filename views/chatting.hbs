@@ -35,76 +35,31 @@
                                         </div>
                                     </div>
                                 </div>
-                                <ul class="users">
-                                    <li class="person" data-chat="person1">
-                                        <div class="user">
-                                            <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
-                                            <span class="status busy"></span>
-                                        </div>
-                                        <p class="name-time">
-                                            <span class="name">Steve Bangalter</span>
-                                            <span class="time">15/02/2019</span>
-                                        </p>
-                                    </li>
-                                    <li class="person" data-chat="person1">
-                                        <div class="user">
-                                            <img src="https://www.bootdey.com/img/Content/avatar/avatar1.png" alt="Retail Admin">
-                                            <span class="status offline"></span>
-                                        </div>
-                                        <p class="name-time">
-                                            <span class="name">Steve Bangalter</span>
-                                            <span class="time">15/02/2019</span>
-                                        </p>
-                                    </li>
-                                    <li class="person active-user" data-chat="person2">
-                                        <div class="user">
-                                            <img src="https://www.bootdey.com/img/Content/avatar/avatar2.png" alt="Retail Admin">
-                                            <span class="status away"></span>
-                                        </div>
-                                        <p class="name-time">
-                                            <span class="name">Peter Gregor</span>
-                                            <span class="time">12/02/2019</span>
-                                        </p>
-                                    </li>
-                                    <li class="person" data-chat="person3">
-                                        <div class="user">
-                                            <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
-                                            <span class="status busy"></span>
-                                        </div>
-                                        <p class="name-time">
-                                            <span class="name">Jessica Larson</span>
-                                            <span class="time">11/02/2019</span>
-                                        </p>
-                                    </li>
-                                    <li class="person" data-chat="person4">
-                                        <div class="user">
-                                            <img src="https://www.bootdey.com/img/Content/avatar/avatar4.png" alt="Retail Admin">
-                                            <span class="status offline"></span>
-                                        </div>
-                                        <p class="name-time">
-                                            <span class="name">Lisa Guerrero</span>
-                                            <span class="time">08/02/2019</span>
-                                        </p>
-                                    </li>
-                                    <li class="person" data-chat="person5">
-                                        <div class="user">
-                                            <img src="https://www.bootdey.com/img/Content/avatar/avatar5.png" alt="Retail Admin">
-                                            <span class="status away"></span>
-                                        </div>
-                                        <p class="name-time">
-                                            <span class="name">Michael Jordan</span>
-                                            <span class="time">05/02/2019</span>
-                                        </p>
-                                    </li>
-                                </ul>
+                                {{#if users}}
+                                    <ul class="users">
+                                        {{#each users}}
+                                            <li class="person" data-chat="{{this.username}}:{{this._id}}" title="{{this.firstName}} {{this.lastName}}">
+                                                <div class="user">
+                                                    <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
+                                                    <span class="status online"></span>
+                                                </div>
+                                                <p class="name-time">
+                                                    <span class="name col-md-12">{{this.firstName}} {{this.lastName}}</span>
+                                                    <span class="time col-md-12">{{this.username}}</span>
+                                                </p>
+                                            </li>
+                                        {{/each}}
+                                    </ul>
+                                {{/if}}
+
                             </div>
                         </div>
                         <div class="col-xl-8 col-lg-8 col-md-8 col-sm-9 col-9">
                             <div class="selected-user">
-                                <span>To: <span class="name">Emily Russell</span></span>
+                               To: <span class="name" id="destination" title="" aria-label=""></span>
                             </div>
                             <div class="chat-container">
-                                <ul class="chat-box chatContainerScroll">
+                                <ul id="chatContainer" class="chat-box chatContainerScroll">
                                     <li class="chat-left">
                                         <div class="chat-avatar">
                                             <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
@@ -168,8 +123,16 @@
                                         <div class="chat-hour">07:00 <span class="fa fa-check-circle"></span></div>
                                     </li>
                                 </ul>
-                                <div class="form-group mt-3 mb-0">
-                                    <textarea class="form-control" rows="3" placeholder="Type your message here..."></textarea>
+                                <div class="row mt-5 mb-5">
+                                <form id="chat-form">
+                                <div class="form-group mt-3 mb-0 col-md-10 float-start">
+                                    <textarea id="chat-input" class="form-control" rows="2" placeholder="Type your message here..."></textarea>
+
+                                </div>
+                                 <div class="form-group mt-3 mb-0 col-md-2 float-end">
+                                    <button type="submit" class="btn"><i class="fa fa-paper-plane"></i></button>
+                                 </div>
+                                </form>
                                 </div>
                             </div>
                         </div>
@@ -186,3 +149,23 @@
     <!-- Content wrapper end -->
 
 </div>
+
+
+<script>
+    const socket = io()
+
+    //const chat =$('chat-form')
+    const chatInput = document.getElementById('chat-input')
+    document.getElementById('chat-form').addEventListener('submit', event => {
+        const toUser = document.getElementById('destination').getAttribute("title")
+        const toName = document.getElementById('destination').getAttribute("aria-label")
+        event.preventDefault()
+        if(toUser === "") {
+            alert("Please Select User Before Start Chatting")
+            return false
+        }
+        const message = {from: "{{id}}", to: toUser.split(":").pop(), fromName: "{{name}}",toName, message: chatInput.value,createdAt:new Date()}
+        socket.emit('chat', message)
+        chatInput.value = ''
+    })
+</script>

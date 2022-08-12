@@ -18,9 +18,9 @@ module.exports = (req, res, next) => {
     if(req.session.user){
         next();     //If session exists, proceed to page
     } else {
+        console.log("Not logged in!")
         var err = new Error("Not logged in!");
-        console.log(req.session.user);
-        next(err);  //Error, trying to access unauthorized page!
+        //next(err);  //Error, trying to access unauthorized page!
         res.redirect('/');
     }
 };
