@@ -40,7 +40,7 @@
                                         {{#each users}}
                                             <li class="person" data-chat="{{this.username}}:{{this._id}}" title="{{this.firstName}} {{this.lastName}}">
                                                 <div class="user">
-                                                    <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
+                                                    <img src="images/user-profile.png" alt="Retail Admin">
                                                     <span class="status online"></span>
                                                 </div>
                                                 <p class="name-time">
@@ -62,7 +62,7 @@
                                 <ul id="chatContainer" class="chat-box chatContainerScroll">
                                     <li class="chat-left">
                                         <div class="chat-avatar">
-                                            <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
+                                            <img src="images/avatar.png" alt="Retail Admin">
                                             <div class="chat-name">Russell</div>
                                         </div>
                                         <div class="chat-text">Hello, I'm Russell.
@@ -149,34 +149,28 @@
     <!-- Content wrapper end -->
 
 </div>
-
-<script src="js/chat.js" defer></script>
 <script>
     const socket = io()
 
     const chatInput = document.getElementById('chat-input')
     document.getElementById('chat-form').addEventListener('submit', event => {
         const toUser = document.getElementById('destination').getAttribute("title")
+        const to = document.getElementById('destination').getAttribute("aria-label")
         event.preventDefault()
         if(toUser === "") {
             alert("Please Select User Before Start Chatting")
             return false
         }
-        const message = {idFrom: "{{id}}", idTo: toUser.split(":").pop(), from: "{{name}}",to:toUser, message: chatInput.value,createdDate:new Date()}
+        const message = {from_id: "{{id}}", to_id: toUser.split(":").pop(), from: "{{name}}",to, message: chatInput.value,createdDate:new Date()}
+        postMessage("{{messageUrl}}",message)
         updateMessageList(message)
+        reloadChatBox("{{messageUrl}}")
         socket.emit('chat', message)
         chatInput.value = ''
     })
 
     function updateMessageList(message) {
         console.log("Message to Append",message)
-        const content = "<div class=\"chat-avatar\">\n" +
-                "                                            <img src=\"https://www.bootdey.com/img/Content/avatar/avatar3.png\" alt=\"Retail Admin\">\n" +
-                "                                            <div class=\"chat-name\">Russell</div>\n" +
-                "                                        </div>\n" +
-                "                                        <div class=\"chat-text\">Hello, I'm Russell.\n" +
-                "                                            <br>How can I help you today?</div>\n" +
-                "                                        <div class=\"chat-hour\">08:55 <span class=\"fa fa-check-circle\"></span></div>"
         const li = document.createElement('li');
         const id = "{{id}}"
         li.setAttribute('class',id === message.idFrom ? "chat-left":"chat-right")
@@ -191,7 +185,7 @@
         chatText.setAttribute('class','chat-text');
         chatText.appendChild(document.createTextNode(message.message));
 
-        const chatHourText = document.createTextNode(new Date().toLocaleTimeString());
+        const chatHourText = document.createTextNode(new Date(message.createdDate).toLocaleTimeString());
         const chatHourIcon = document.createElement("span");
         chatHourIcon.setAttribute('class',"fa fa-check-circle")
 
@@ -209,5 +203,32 @@
         li.appendChild(chatHour)
 
         document.getElementById('chatContainer').appendChild(li);
+    }
+    function reloadChatBox(reloadUrl){
+        console.log("Updating Chat Box")
+        fetch(reloadUrl, {
+            method: 'get'
+        }).then(response => response.json())
+        .then(jsonData => {
+
+            console.log(jsonData)
+        }).catch(err => {
+            console.log("Error during reload Chat Box")
+        })
+    }
+    function postMessage(url,message){
+        console.log("Posting Message",message)
+        fetch(url, {
+            method: 'post',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(message)
+        }).then(message => {
+            console.log("Message Posted",message)
+        }).catch(err => {
+            console.log("Error while posting message")
+        })
     }
 </script>

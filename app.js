@@ -18,6 +18,7 @@ const signupRouter = require("./routes/signup")
 const usersRouter = require("./routes/users")
 const profileRouter = require("./routes/profile")
 const logoutRouter = require("./routes/logout")
+const messageRouter = require("./routes/message")
 
 const app = express();
 require('dotenv').config()
@@ -72,14 +73,15 @@ db.on('error', function(err) {
 });
 
 const User = require("./model/User")
-
+app.use('/logout',logoutRouter);
+app.use('/message',messageRouter);
 app.use('/users',usersRouter);
 app.use('/profile',profileRouter);
 app.use('/contact',contactRouter);
 app.use('/chatting',chattingRouter);
 app.use('/signup',signupRouter);
 app.use('/',loginRouter);
-app.use('/logout',logoutRouter);
+
 
 
 

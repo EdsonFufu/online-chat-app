@@ -1,14 +1,12 @@
 const mongoose = require("mongoose")
 const messageSchema = new mongoose.Schema({
-    idFrom:{
-        type:mongoose.Schema.Types.ObjectId,
-        required:"User From Id is required",
-        ref:"User"
+    from_id:{
+        type:String,
+        required:"User From Id is required"
     },
-    idTo:{
-        type:mongoose.Schema.Types.ObjectId,
-        required: "User To Id is required",
-        ref:"User"
+    to_id:{
+        type:String,
+        required: "User To Id is required"
     },
     from:{
         type:String,
