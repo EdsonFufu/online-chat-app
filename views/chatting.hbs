@@ -60,68 +60,6 @@
                             </div>
                             <div class="chat-container">
                                 <ul id="chatContainer" class="chat-box chatContainerScroll">
-                                    <li class="chat-left">
-                                        <div class="chat-avatar">
-                                            <img src="images/avatar.png" alt="Retail Admin">
-                                            <div class="chat-name">Russell</div>
-                                        </div>
-                                        <div class="chat-text">Hello, I'm Russell.
-                                            <br>How can I help you today?</div>
-                                        <div class="chat-hour">08:55 <span class="fa fa-check-circle"></span></div>
-                                    </li>
-                                    <li class="chat-right">
-                                        <div class="chat-hour">08:56 <span class="fa fa-check-circle"></span></div>
-                                        <div class="chat-text">Hi, Russell
-                                            <br> I need more information about Developer Plan.</div>
-                                        <div class="chat-avatar">
-                                            <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
-                                            <div class="chat-name">Sam</div>
-                                        </div>
-                                    </li>
-                                    <li class="chat-left">
-                                        <div class="chat-avatar">
-                                            <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
-                                            <div class="chat-name">Russell</div>
-                                        </div>
-                                        <div class="chat-text">Are we meeting today?
-                                            <br>Project has been already finished and I have results to show you.</div>
-                                        <div class="chat-hour">08:57 <span class="fa fa-check-circle"></span></div>
-                                    </li>
-                                    <li class="chat-right">
-                                        <div class="chat-hour">08:59 <span class="fa fa-check-circle"></span></div>
-                                        <div class="chat-text">Well I am not sure.
-                                            <br>I have results to show you.</div>
-                                        <div class="chat-avatar">
-                                            <img src="https://www.bootdey.com/img/Content/avatar/avatar5.png" alt="Retail Admin">
-                                            <div class="chat-name">Joyse</div>
-                                        </div>
-                                    </li>
-                                    <li class="chat-left">
-                                        <div class="chat-avatar">
-                                            <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
-                                            <div class="chat-name">Russell</div>
-                                        </div>
-                                        <div class="chat-text">The rest of the team is not here yet.
-                                            <br>Maybe in an hour or so?</div>
-                                        <div class="chat-hour">08:57 <span class="fa fa-check-circle"></span></div>
-                                    </li>
-                                    <li class="chat-right">
-                                        <div class="chat-hour">08:59 <span class="fa fa-check-circle"></span></div>
-                                        <div class="chat-text">Have you faced any problems at the last phase of the project?</div>
-                                        <div class="chat-avatar">
-                                            <img src="https://www.bootdey.com/img/Content/avatar/avatar4.png" alt="Retail Admin">
-                                            <div class="chat-name">Jin</div>
-                                        </div>
-                                    </li>
-                                    <li class="chat-left">
-                                        <div class="chat-avatar">
-                                            <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
-                                            <div class="chat-name">Russell</div>
-                                        </div>
-                                        <div class="chat-text">Actually everything was fine.
-                                            <br>I'm very excited to show this to our team.</div>
-                                        <div class="chat-hour">07:00 <span class="fa fa-check-circle"></span></div>
-                                    </li>
                                 </ul>
                                 <div class="row mt-5 mb-5">
                                 <form id="chat-form">
@@ -130,7 +68,7 @@
 
                                 </div>
                                  <div class="form-group mt-3 mb-0 col-md-2 float-end">
-                                    <button type="submit" class="btn"><i class="fa fa-paper-plane"></i></button>
+                                    <button type="submit" class="btn btn-outline-primary"><i class="fa fa-paper-plane"></i> Send </button>
                                  </div>
                                 </form>
                                 </div>
@@ -151,7 +89,7 @@
 </div>
 <script>
     const socket = io()
-
+    setInterval(function () {reloadChatBox("{{messageUrl}}")}, 1000);
     const chatInput = document.getElementById('chat-input')
     document.getElementById('chat-form').addEventListener('submit', event => {
         const toUser = document.getElementById('destination').getAttribute("title")
@@ -163,8 +101,6 @@
         }
         const message = {from_id: "{{id}}", to_id: toUser.split(":").pop(), from: "{{name}}",to, message: chatInput.value,createdDate:new Date()}
         postMessage("{{messageUrl}}",message)
-        updateMessageList(message)
-        reloadChatBox("{{messageUrl}}")
         socket.emit('chat', message)
         chatInput.value = ''
     })
@@ -173,7 +109,7 @@
         console.log("Message to Append",message)
         const li = document.createElement('li');
         const id = "{{id}}"
-        li.setAttribute('class',id === message.idFrom ? "chat-left":"chat-right")
+        li.setAttribute('class',id === message.from_id ? "chat-left":"chat-right")
         const chat = document.createElement("div");
         chat.setAttribute('class','chat-avatar');
 
@@ -195,7 +131,7 @@
         chatHour.appendChild(chatHourIcon)
 
         const avatar = document.createElement("img");
-        avatar.src = "https://www.bootdey.com/img/Content/avatar/avatar3.png";
+        avatar.src = "images/avatar1.png";
         chat.appendChild(avatar)
         chat.appendChild(chatName)
         li.appendChild(chat)
@@ -204,14 +140,32 @@
 
         document.getElementById('chatContainer').appendChild(li);
     }
-    function reloadChatBox(reloadUrl){
-        console.log("Updating Chat Box")
-        fetch(reloadUrl, {
-            method: 'get'
-        }).then(response => response.json())
-        .then(jsonData => {
-
-            console.log(jsonData)
+    function reloadChatBox(url){
+        console.log("Reload Chat Box")
+        fetch(url, {
+            method: 'get',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(response => response.json()).then(messages => {
+            console.log("Chat Messages To Box",messages)
+            var lis = document.querySelectorAll('#chatContainer li');
+            for(var i=0; li=lis[i]; i++) {
+                li.parentNode.removeChild(li);
+            }
+            messages.forEach(message => {
+                const userAndId = document.getElementById('destination').getAttribute("title");
+                if(userAndId === "") {
+                    console.log(message.from_id);
+                    updateMessageList(message)
+                }else {
+                    const fromId = userAndId.split(":").pop()
+                    console.log(fromId)
+                    if(message.from_id === fromId || message.to_id === "{{id}}"){
+                        updateMessageList(message)
+                    }
+                }
+            });
         }).catch(err => {
             console.log("Error during reload Chat Box")
         })
@@ -225,10 +179,12 @@
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(message)
-        }).then(message => {
+        }).then(response => response.json()).then(message => {
             console.log("Message Posted",message)
         }).catch(err => {
             console.log("Error while posting message")
         })
+
+        reloadChatBox(url)
     }
 </script>

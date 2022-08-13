@@ -5,8 +5,9 @@ const Message = require("../model/Message")
 
 
 router.get("/" ,auth, (req,res) => {
-    Message.find({}).lean().then(messages => {
-        res.send(messages)
+    id = req.session.user._id
+    Message.find({ $or: [{ from_id: id }, { to_id: id }] }).lean().then(messages => {
+        res.json(messages)
     }).catch(err => {
         console.log(err)
         console.log("Error on Fetching Messages")
@@ -28,7 +29,7 @@ router.post("/" ,auth, (req,res) => {
     console.log("Prepared Message to Post",message)
 
     message.save().then(message => {
-        res.send(message)
+        res.json(message)
     }).catch(err => {
         console.log(err)
         console.log("Error on Posting Message")
